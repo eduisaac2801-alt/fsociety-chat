@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FSOCIETY CHAT</title>
+<style>
+/* =============================================================
+   FSOCIETY CHAT — estilos (embebidos para uso en un solo archivo)
+   Terminal hacker: negro puro + verde brillante + glow.
+============================================================= */
+:root{
+  --bg:#000000;
+  --green:#00ff00;
+  --green-dim:#0a8a0a;
+  --green-glow:rgba(0,255,0,0.55);
+  --panel-bg:#020402;
+  --font-mono:"Consolas","Courier New",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--green);font-family:var(--font-mono);
+  -webkit-text-size-adjust:100%;overscroll-behavior:none;}
+#matrix-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.28;pointer-events:none;}
+
+/* ---------- OVERLAY ESTILO MONITOR CRT ----------
+   Líneas de escaneo + viñeta + parpadeo sutil. */
+#crt-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:5;pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom, rgba(0,255,0,0.035) 0px, rgba(0,255,0,0.035) 1px, transparent 1px, transparent 3px
+  );
+  box-shadow:inset 0 0 140px rgba(0,0,0,0.85);
+  animation:crtFlicker 6s infinite;
+}
+@keyframes crtFlicker{
+  0%,100%{opacity:1;} 92%{opacity:1;} 93%{opacity:.86;} 94%{opacity:1;} 96%{opacity:.92;} 97%{opacity:1;}
+}
+.neon-flicker{animation:neonFlicker 4.2s infinite;}
+@keyframes neonFlicker{
+  0%,19%,21%,23%,80%,100%{opacity:1;text-shadow:0 0 6px var(--green-glow),0 0 14px var(--green-glow);}
+  20%,22%{opacity:.7;text-shadow:none;}
+}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#000;}
+::-webkit-scrollbar-thumb{background:var(--green-dim);border-radius:4px;}
+.hidden{display:none !important;}
+.screen{min-height:100vh;min-height:100dvh;width:100%;position:relative;z-index:1;}
+.blink{animation:blink 1s step-start infinite;}
+@keyframes blink{50%{opacity:0;}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ---------- LOGIN ---------- */
+#login-screen{display:flex;align-items:center;justify-content:center;padding:16px;}
+.login-box{width:100%;max-width:420px;border:1px solid var(--green);border-radius:8px;
+  padding:22px 18px;background:var(--panel-bg);
+  box-shadow:0 0 12px var(--green-glow), inset 0 0 12px rgba(0,255,0,0.08);
+  animation:fadeIn .5s ease-out;}
+.ascii-logo{font-size:6px;line-height:1.1;color:var(--green);text-shadow:0 0 6px var(--green-glow);
+  overflow-x:auto;margin-bottom:8px;white-space:pre;}
+.login-sub{font-size:11px;color:var(--green-dim);margin-bottom:18px;letter-spacing:.5px;}
+#login-form label{display:block;font-size:13px;margin-top:12px;margin-bottom:6px;}
+#login-form input{width:100%;background:#000;border:1px solid var(--green-dim);color:var(--green);
+  font-family:var(--font-mono);font-size:16px;padding:12px;border-radius:4px;outline:none;
+  transition:box-shadow .2s,border-color .2s;}
+#login-form input:focus{border-color:var(--green);box-shadow:0 0 8px var(--green-glow);}
+#login-btn{margin-top:18px;width:100%;background:#000;border:1px solid var(--green);color:var(--green);
+  font-family:var(--font-mono);font-size:14px;letter-spacing:1px;padding:13px;border-radius:4px;
+  cursor:pointer;transition:.2s;}
+#login-btn:active{background:var(--green);color:#000;box-shadow:0 0 14px var(--green-glow);}
+.error-msg{margin-top:12px;color:#ff3b3b;font-size:13px;min-height:16px;
+  text-shadow:0 0 6px rgba(255,59,59,.6);}
+
+/* ---------- EFECTO GLITCH ----------
+   Uso: <span class="glitch" data-text="TEXTO">TEXTO</span> */
+.glitch{position:relative;display:inline-block;}
+.glitch::before,.glitch::after{
+  content:attr(data-text);position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;
+}
+.glitch::before{color:#ff005a;z-index:-1;animation:glitchTop 3.2s infinite linear alternate-reverse;}
+.glitch::after{color:#00e5ff;z-index:-1;animation:glitchBottom 2.6s infinite linear alternate-reverse;}
+@keyframes glitchTop{
+  0%,100%{clip-path:inset(0 0 90% 0);transform:translate(0,0);}
+  20%{clip-path:inset(10% 0 60% 0);transform:translate(-2px,-1px);}
+  40%{clip-path:inset(40% 0 30% 0);transform:translate(2px,1px);}
+  60%{clip-path:inset(70% 0 5% 0);transform:translate(-1px,1px);}
+  80%{clip-path:inset(5% 0 80% 0);transform:translate(1px,-1px);}
+}
+@keyframes glitchBottom{
+  0%,100%{clip-path:inset(80% 0 0 0);transform:translate(0,0);}
+  20%{clip-path:inset(50% 0 20% 0);transform:translate(2px,1px);}
+  40%{clip-path:inset(20% 0 55% 0);transform:translate(-2px,-1px);}
+  60%{clip-path:inset(5% 0 75% 0);transform:translate(1px,-1px);}
+  80%{clip-path:inset(60% 0 15% 0);transform:translate(-1px,1px);}
+}
+
+/* ---------- PANTALLA DE ARRANQUE (boot sequence) ---------- */
+#boot-screen{display:flex;align-items:center;justify-content:center;padding:20px;}
+.boot-box{width:100%;max-width:520px;font-size:12px;line-height:1.7;}
+.boot-line{opacity:0;white-space:pre-wrap;word-break:break-word;}
+.boot-line.show{opacity:1;animation:fadeIn .15s ease-out;}
+.boot-ok{color:var(--green);}
+.boot-warn{color:#ffcc00;}
+.boot-bar-track{width:100%;background:#000;border:1px solid var(--green-dim);border-radius:3px;
+  height:10px;margin:14px 0;overflow:hidden;}
+.boot-bar-fill{height:100%;width:0%;background:var(--green);box-shadow:0 0 8px var(--green-glow);
+  transition:width .25s linear;}
+.boot-skip{margin-top:10px;font-size:10px;color:var(--green-dim);text-align:right;}
+
+/* ---------- BARRA DE ESTADO DEL SISTEMA ---------- */
+.status-bar{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:9px;color:var(--green-dim);
+  letter-spacing:.5px;padding:4px 14px 8px;border-bottom:1px dashed rgba(0,255,0,.2);}
+.status-bar span b{color:var(--green);font-weight:normal;}
+
+/* ---------- TICKER DE LOGS ---------- */
+.log-ticker{overflow:hidden;white-space:nowrap;font-size:10px;color:var(--green-dim);
+  border-top:1px dashed rgba(0,255,0,.2);padding:5px 0;flex-shrink:0;}
+.log-ticker-track{display:inline-block;padding-left:100%;animation:tickerScroll 22s linear infinite;}
+@keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-100%);}}
+
+/* ---------- CHAT ---------- */
+#chat-screen{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+.chat-header{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;border-bottom:1px solid var(--green);box-shadow:0 0 10px var(--green-glow);
+  flex-shrink:0;}
+.header-title{font-size:14px;letter-spacing:1px;text-shadow:0 0 6px var(--green-glow);}
+#logout-btn{background:none;border:1px solid var(--green-dim);color:var(--green);
+  font-family:var(--font-mono);font-size:12px;padding:6px 9px;border-radius:4px;cursor:pointer;}
+#logout-btn:active{border-color:var(--green);box-shadow:0 0 8px var(--green-glow);}
+
+/* En celular todo se apila en una sola columna y se navega
+   verticalmente: usuarios arriba (colapsable), chat en medio,
+   panel secreto abajo (si aplica). */
+.chat-layout{flex:1;display:flex;flex-direction:column;gap:8px;padding:8px;overflow:hidden;min-height:0;}
+
+.panel{border:1px solid var(--green-dim);border-radius:6px;background:var(--panel-bg);
+  box-shadow:0 0 8px rgba(0,255,0,.15);animation:fadeIn .35s ease-out;}
+.panel h2{font-size:12px;letter-spacing:.5px;border-bottom:1px dashed var(--green-dim);
+  padding:10px 12px;text-shadow:0 0 6px var(--green-glow);display:flex;align-items:center;
+  justify-content:space-between;cursor:pointer;}
+
+/* Panel de usuarios: colapsable para no robar espacio en pantallas chicas */
+.users-panel{flex-shrink:0;max-height:120px;overflow-y:auto;}
+.users-panel.collapsed{max-height:44px;overflow:hidden;}
+#users-list{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;padding:8px 12px 12px;}
+#users-list li{padding:5px 8px;border-radius:4px;border:1px solid transparent;word-break:break-word;}
+
+/* Chat central: ocupa el espacio disponible */
+.chat-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+.messages-box{flex:1;overflow-y:auto;padding:12px;font-size:14px;line-height:1.55;background:#000;
+  -webkit-overflow-scrolling:touch;}
+.messages-box .msg{margin-bottom:6px;animation:fadeIn .2s ease-out;white-space:pre-wrap;word-break:break-word;}
+.messages-box .msg .sender{color:var(--green);font-weight:bold;text-shadow:0 0 4px var(--green-glow);}
+
+.message-form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--green-dim);flex-shrink:0;}
+.message-form input{flex:1;background:#000;border:1px solid var(--green-dim);color:var(--green);
+  font-family:var(--font-mono);font-size:16px;padding:11px;border-radius:4px;outline:none;min-width:0;}
+.message-form input:focus{border-color:var(--green);box-shadow:0 0 8px var(--green-glow);}
+.message-form button{background:#000;border:1px solid var(--green);color:var(--green);
+  font-family:var(--font-mono);font-size:13px;padding:11px 14px;border-radius:4px;cursor:pointer;flex-shrink:0;}
+.message-form button:active{background:var(--green);color:#000;}
+
+/* Panel secreto: colapsado por defecto, escondido para todos
+   menos ERROR9940. En celular ocupa poco espacio hasta que se abre. */
+.secret-panel{flex-shrink:0;font-size:13px;max-height:180px;overflow-y:auto;}
+.secret-panel .secret-body{padding:8px 12px 12px;}
+.secret-panel label{display:block;margin-top:8px;margin-bottom:6px;}
+.secret-panel input{width:100%;background:#000;border:1px solid var(--green-dim);color:var(--green);
+  font-family:var(--font-mono);font-size:16px;padding:9px 10px;border-radius:4px;outline:none;}
+#change-name-btn{margin-top:10px;width:100%;background:#000;border:1px solid var(--green);color:var(--green);
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;}
+#change-name-btn:active{background:var(--green);color:#000;}
+.secret-hint{margin-top:8px;font-size:10px;color:var(--green-dim);}
+
+.secret-panel select{width:100%;background:#000;border:1px solid var(--green-dim);color:var(--green);
+  font-family:var(--font-mono);font-size:14px;padding:9px 10px;border-radius:4px;outline:none;margin-top:2px;}
+.ban-btn{margin-top:10px;width:100%;background:#000;border:1px solid #ff3b3b;color:#ff3b3b;
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;
+  text-shadow:0 0 6px rgba(255,59,59,.5);}
+.ban-btn:active{background:#ff3b3b;color:#000;}
+.secret-divider{border:none;border-top:1px dashed var(--green-dim);margin:14px 0;}
+.status-on{color:var(--green);font-weight:bold;}
+.status-off{color:#ff3b3b;font-weight:bold;text-shadow:0 0 6px rgba(255,59,59,.6);}
+
+/* Logo original (encapuchado con ojos brillantes) — NO es la
+   máscara de ninguna serie o marca, es un diseño propio simple
+   inspirado en el estilo "hacker anónimo" genérico. */
+.logo-mark{display:flex;justify-content:center;margin-bottom:6px;}
+.logo-mark svg{filter:drop-shadow(0 0 6px var(--green-glow));}
+.logo-mark-red svg{filter:drop-shadow(0 0 8px rgba(255,43,43,.65));}
+
+/* ---------- PANTALLA DE BANEO ---------- */
+.banned-overlay{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;background:#000;animation:fadeIn .4s ease-out;}
+.banned-ascii{color:#ff3b3b;font-size:8px;line-height:1.1;text-shadow:0 0 8px rgba(255,59,59,.7);
+  white-space:pre;margin-bottom:18px;overflow-x:auto;max-width:100%;}
+.banned-title{color:#ff3b3b;font-size:20px;letter-spacing:1px;text-shadow:0 0 10px rgba(255,59,59,.8);
+  animation:blink 1.1s step-start infinite;}
+.banned-sub{margin-top:10px;font-size:12px;color:var(--green-dim);letter-spacing:1px;}
+
+/* Pantallas un poco más anchas (tablet/desktop): usuarios y
+   panel secreto se acomodan al costado en vez de apilarse. */
+@media (min-width:700px){
+  .chat-layout{flex-direction:row;}
+  .users-panel{width:200px;max-height:none;order:1;}
+  .chat-panel{order:2;}
+  .secret-panel{width:220px;max-height:none;order:3;}
+  .users-panel.collapsed{max-height:none;}
+}
+</style>
+</head>
+<body>
+<canvas id="matrix-canvas"></canvas>
+<div id="crt-overlay"></div>
+
+  <!-- =========================================================
+       PANTALLA 0: SECUENCIA DE ARRANQUE (pura ambientación)
+  ========================================================== -->
+  <div id="boot-screen" class="screen">
+    <div class="boot-box">
+      <div id="boot-lines"></div>
+      <div class="boot-bar-track"><div id="boot-bar-fill" class="boot-bar-fill"></div></div>
+      <p class="boot-skip">[ toca la pantalla para omitir ]</p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PANTALLA 1: LOGIN
+  ========================================================== -->
+  <div id="login-screen" class="screen hidden">
+    <div class="login-box">
+      <div class="logo-mark logo-mark-red">
+        <svg viewBox="0 0 100 116" width="86" height="100">
+          <!-- Interpretación propia (silueta genérica de traje +
+               signo de interrogación + aro) en rojo/negro, NO es
+               una copia del logo de Anonymous ni de ninguna marca. -->
+          <circle cx="50" cy="54" r="44" fill="none" stroke="#ff2b2b" stroke-width="2.5"/>
+          <g stroke="#ff2b2b" stroke-width="2" fill="none" stroke-linecap="round">
+            <path d="M14 40 L23 37 M13 48 L23 46 M14 57 L24 56 M16 65 L25 65 M19 72 L28 73 M23 79 L31 81"/>
+            <path d="M86 40 L77 37 M87 48 L77 46 M86 57 L76 56 M84 65 L75 65 M81 72 L72 73 M77 79 L69 81"/>
+          </g>
+          <path d="M30 100 L38 68 L50 74 L62 68 L70 100 Z" fill="#ff2b2b"/>
+          <path d="M46 70 L50 78 L54 70 L52 100 L48 100 Z" fill="#000"/>
+          <text x="50" y="58" font-family="Consolas, monospace" font-size="30" fill="#ff2b2b"
+                text-anchor="middle" font-weight="bold">?</text>
+        </svg>
+      </div>
+      <p class="glitch neon-flicker" data-text="FSOCIETY_OS v2.7" style="font-size:12px;letter-spacing:2px;margin-bottom:4px;">FSOCIETY_OS v2.7</p>
+      <pre class="ascii-logo"> _____  _____  ____   ____ ___ _____ _______   __
+|  ___|/ ____|/ __ \ / ___|_ _| ____|_   _\ \ / /
+| |_   | (___ | |  | | |    | ||  _|   | |  \ V / 
+|  _|   \___ \| |  | | |    | || |___  | |   | |  
+| |     ____) | |__| | |___ | ||_____| | |   | |  
+|_|    |_____/ \____/ \____|___|_______|_|   |_|  </pre>
+      <p class="login-sub">// ACCESO AL SISTEMA — INGRESE CREDENCIALES</p>
+
+      <form id="login-form" autocomplete="off">
+        <label for="username">USUARIO:</label>
+        <input type="text" id="username" placeholder="_" autocomplete="off" required>
+
+        <label for="password" id="password-label" class="hidden">CONTRASEÑA:</label>
+        <input type="password" id="password" placeholder="_" class="hidden" autocomplete="off">
+
+        <button type="submit" id="login-btn">INICIAR SESIÓN</button>
+      </form>
+
+      <p id="login-error" class="error-msg"></p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PANTALLA 2: CHAT PRINCIPAL
+  ========================================================== -->
+  <div id="chat-screen" class="screen hidden">
+
+    <header class="chat-header">
+      <span class="header-title">
+        <span class="glitch neon-flicker" data-text="FSOCIETY CHAT">FSOCIETY CHAT</span> <span class="blink">_</span>
+      </span>
+      <button id="logout-btn">[SALIR]</button>
+    </header>
+
+    <div class="status-bar">
+      <span>HOST: <b>fsociety-node-07</b></span>
+      <span>IP: <b id="fake-ip">10.66.13.9</b></span>
+      <span>ENC: <b>AES-256</b></span>
+      <span>PING: <b id="fake-ping">23ms</b></span>
+      <span>SYS: <b id="clock-display">00:00:00</b></span>
+    </div>
+
+    <div class="chat-layout">
+
+      <!-- USUARIOS CONECTADOS (tocar el título colapsa/expande en celular) -->
+      <aside class="panel users-panel" id="users-panel">
+        <h2 id="users-toggle">USUARIOS CONECTADOS <span id="users-arrow">▾</span></h2>
+        <ul id="users-list"></ul>
+      </aside>
+
+      <!-- ZONA DE CHAT -->
+      <main class="panel chat-panel">
+        <div id="messages" class="messages-box"></div>
+        <form id="message-form" class="message-form">
+          <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
+          <button type="submit">ENVIAR</button>
+        </form>
+      </main>
+
+      <!-- PANEL SECRETO: solo visible para ERROR9940 -->
+      <aside class="panel secret-panel hidden" id="secret-panel">
+        <h2>PANEL DE CONTROL</h2>
+        <div class="secret-body">
+          <label for="new-name-input">CAMBIAR NOMBRE:</label>
+          <input type="text" id="new-name-input" placeholder="Nuevo nombre...">
+          <button id="change-name-btn">APLICAR</button>
+          <p class="secret-hint">// si el nombre ya existe, solo cambias de cuenta a esa; si es nuevo, se crea y queda guardado</p>
+
+          <hr class="secret-divider">
+
+          <label for="ban-user-select">❌ BANEAR USUARIO:</label>
+          <select id="ban-user-select"></select>
+          <button id="ban-user-btn" class="ban-btn">BANEAR</button>
+          <p class="secret-hint">// al usuario baneado se le mostrará una pantalla de "acceso revocado"</p>
+
+          <hr class="secret-divider">
+
+          <label>🔌 ESTADO DEL SERVIDOR: <span id="server-status-label" class="status-on">ACTIVO</span></label>
+          <button id="toggle-server-btn" class="ban-btn">APAGAR SERVIDOR</button>
+          <p class="secret-hint">// mientras esté apagado, nadie más podrá entrar ni seguir en el chat</p>
+        </div>
+      </aside>
+
+    </div>
+
+    <div class="log-ticker"><div class="log-ticker-track" id="log-ticker-track">// inicializando...</div></div>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =============================================================
+   FSOCIETY CHAT — lógica (embebida)
+   Capa de datos conectada a Firebase (Firestore) en tiempo real.
+   Ya no se usa localStorage para usuarios/mensajes/baneos/
+   estado del servidor: ahora vive todo en la nube, así que
+   cualquiera que abra la página ve lo mismo en vivo.
+============================================================= */
+
+const MAX_USERS = 8;
+const ADMIN_USERNAME = "ERROR9940";
+const ADMIN_PASSWORD = "FF";
+const HEARTBEAT_MS = 4000;
+const STALE_MS = 12000;
+
+// ---------- CONEXIÓN A FIREBASE ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyCY6KC66cm5iPTqVix9vedksHSu1Q_xSgE",
+  authDomain: "fsociety-chat-99574.firebaseapp.com",
+  projectId: "fsociety-chat-99574",
+  storageBucket: "fsociety-chat-99574.firebasestorage.app",
+  messagingSenderId: "946961606987",
+  appId: "1:946961606987:web:d66e8d72ec384016a760ce"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const SS_SESSION = "fsociety_session";
+
+let mySessionId = null;
+let myUsername = null;
+let isAdmin = false;
+let heartbeatTimer = null;
+let cleanupTimer = null;
+let banCheckTimer = null;
+let serverCheckTimer = null;
+
+/* ---------- CACHÉ LOCAL EN TIEMPO REAL ----------
+   Estas variables reflejan siempre lo último que llegó desde
+   Firestore. Los listeners de abajo ("onSnapshot") se conectan
+   una sola vez al cargar la página y se actualizan solos cada
+   vez que algo cambia en la base de datos, sin importar quién
+   lo haya cambiado ni desde qué celular. */
+let usersCache = {};
+let messagesCache = [];
+let bannedCache = {};
+let serverActiveCache = true;
+
+db.collection("fsociety_users").onSnapshot(snapshot => {
+  const obj = {};
+  snapshot.forEach(doc => { obj[doc.id] = doc.data(); });
+  usersCache = obj;
+  renderUsers();
+});
+
+db.collection("fsociety_messages").orderBy("timestamp").onSnapshot(snapshot => {
+  messagesCache = snapshot.docs.map(doc => doc.data());
+  renderMessages();
+});
+
+db.collection("fsociety_banned").onSnapshot(snapshot => {
+  const obj = {};
+  snapshot.forEach(doc => { obj[doc.id] = doc.data().bannedAt; });
+  bannedCache = obj;
+  checkIfBanned();
+});
+
+db.collection("fsociety_config").doc("server").onSnapshot(doc => {
+  serverActiveCache = doc.exists ? (doc.data().active !== false) : true;
+  checkServerStatus();
+});
+
+/* ---------- FONDO ESTILO "LLUVIA DE CÓDIGO" (Matrix) ---------- */
+(function initMatrixRain(){
+  const canvas = document.getElementById("matrix-canvas");
+  const ctx = canvas.getContext("2d");
+  const chars = "アカサタナハマヤラワ01アイウエオ$#%&FSOCIETY0123456789";
+  const fontSize = 15;
+  let columns, drops;
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    columns = Math.floor(canvas.width / fontSize);
+    drops = new Array(columns).fill(1);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  function draw(){
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#00ff00";
+    ctx.font = fontSize + "px monospace";
+    for(let i = 0; i < drops.length; i++){
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if(drops[i] * fontSize > canvas.height && Math.random() > 0.975){
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 50);
+})();
+
+/* ---------- SECUENCIA DE ARRANQUE (boot sequence) ----------
+   Pura ambientación visual: simula que el sistema se está
+   conectando antes de mostrar el login. Se puede omitir
+   tocando la pantalla. */
+(function initBootSequence(){
+  const bootScreen = document.getElementById("boot-screen");
+  const bootLines = document.getElementById("boot-lines");
+  const bootBar = document.getElementById("boot-bar-fill");
+  const loginScreen = document.getElementById("login-screen");
+
+  const lines = [
+    { text: "> booting fsociety_os v2.7 ...", cls: "" },
+    { text: "[OK] cargando módulos del kernel", cls: "boot-ok" },
+    { text: "[OK] estableciendo túnel seguro (AES-256)", cls: "boot-ok" },
+    { text: "[..] enrutando tráfico por 7 proxies", cls: "" },
+    { text: "[WARN] firewall detectado — evadiendo", cls: "boot-warn" },
+    { text: "[OK] acceso al mainframe fsociety concedido", cls: "boot-ok" },
+    { text: "> listo. esperando credenciales_", cls: "" }
+  ];
+
+  let i = 0;
+  let finished = false;
+
+  function finishBoot(){
+    if(finished) return;
+    finished = true;
+    bootScreen.classList.add("hidden");
+    loginScreen.classList.remove("hidden");
+  }
+
+  function nextLine(){
+    if(finished) return;
+    if(i >= lines.length){
+      setTimeout(finishBoot, 500);
+      return;
+    }
+    const div = document.createElement("div");
+    div.className = "boot-line " + (lines[i].cls || "");
+    div.textContent = lines[i].text;
+    bootLines.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+    bootBar.style.width = Math.round(((i + 1) / lines.length) * 100) + "%";
+    i++;
+    setTimeout(nextLine, 420 + Math.random() * 260);
+  }
+
+  // Permite omitir la animación tocando/clicando la pantalla.
+  bootScreen.addEventListener("click", finishBoot);
+
+  nextLine();
+  // Salvaguarda: si algo falla, no dejamos al usuario atrapado.
+  setTimeout(finishBoot, 6000);
+})();
+
+/* ---------- RELOJ Y ESTADO FALSO DEL SISTEMA ----------
+   Solo decorativo: reloj real + ping aleatorio para reforzar
+   la sensación de terminal conectada. */
+(function initStatusBar(){
+  const clockEl = document.getElementById("clock-display");
+  const pingEl = document.getElementById("fake-ping");
+  if(!clockEl) return;
+  function tick(){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    clockEl.textContent = `${hh}:${mm}:${ss}`;
+    if(pingEl) pingEl.textContent = (18 + Math.floor(Math.random() * 40)) + "ms";
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ---------- TICKER DE LOGS FALSOS ----------
+   Un renglón decorativo que simula actividad de red constante. */
+(function initLogTicker(){
+  const track = document.getElementById("log-ticker-track");
+  if(!track) return;
+  const logs = [
+    "[OK] paquete cifrado enviado // nodo 4",
+    "[INFO] latencia estable — 24ms promedio",
+    "[WARN] intento de intrusión bloqueado",
+    "[OK] túnel AES-256 verificado",
+    "[INFO] 8 nodos activos en la red",
+    "[OK] integridad del canal: 100%",
+    "[INFO] sincronizando reloj con el mainframe"
+  ];
+  track.textContent = logs.join("    //    ");
+})();
+
+/* ---------- ALMACENAMIENTO SEGURO ----------
+   Algunos navegadores (sobre todo al abrir el archivo directo
+   desde el celular vía content:// o file://) bloquean
+   localStorage/sessionStorage y lanzan una excepción. Si eso
+   pasara y no lo controláramos, el login se quedaría "colgado"
+   sin abrir el chat y sin avisar nada. Esta capa intenta usar
+   localStorage/sessionStorage normalmente, y si el navegador
+   los bloquea, cae automáticamente a un almacenamiento en
+   memoria (funciona igual mientras la pestaña siga abierta). */
+const memoryStore = { local: {}, session: {} };
+let storageBlocked = false;
+
+function safeGet(type, key){
+  try{
+    const store = type === "session" ? sessionStorage : localStorage;
+    return store.getItem(key);
+  }catch(e){
+    storageBlocked = true;
+    return Object.prototype.hasOwnProperty.call(memoryStore[type], key) ? memoryStore[type][key] : null;
+  }
+}
+function safeSet(type, key, value){
+  try{
+    const store = type === "session" ? sessionStorage : localStorage;
+    store.setItem(key, value);
+  }catch(e){
+    storageBlocked = true;
+    memoryStore[type][key] = value;
+  }
+}
+function safeRemove(type, key){
+  try{
+    const store = type === "session" ? sessionStorage : localStorage;
+    store.removeItem(key);
+  }catch(e){
+    storageBlocked = true;
+    delete memoryStore[type][key];
+  }
+}
+
+/* ---------- CAPA DE DATOS ---------- */
+function getUsers(){
+  return usersCache;
+}
+function saveUsers(newUsersObj){
+  // Comparamos contra lo que ya sabíamos y solo escribimos en
+  // Firestore los documentos que realmente cambiaron o se
+  // borraron (en vez de reescribir toda la colección).
+  const oldIds = Object.keys(usersCache);
+  const newIds = Object.keys(newUsersObj);
+
+  oldIds.forEach(id => {
+    if(!(id in newUsersObj)){
+      db.collection("fsociety_users").doc(id).delete().catch(() => {});
+    }
+  });
+  newIds.forEach(id => {
+    const changed = JSON.stringify(usersCache[id] || null) !== JSON.stringify(newUsersObj[id]);
+    if(changed){
+      db.collection("fsociety_users").doc(id).set(newUsersObj[id]).catch(() => {});
+    }
+  });
+
+  // Actualizamos la caché al instante para que se sienta
+  // inmediato en esta misma pestaña (Firestore confirmará
+  // lo mismo un momento después vía onSnapshot).
+  usersCache = newUsersObj;
+  renderUsers();
+}
+function getMessages(){
+  return messagesCache;
+}
+function addMessage(sender, text){
+  db.collection("fsociety_messages").add({
+    sender, text, timestamp: Date.now()
+  }).catch(err => console.error("Error al enviar mensaje:", err));
+}
+
+/** Lee la lista de sesiones baneadas: { sessionId: timestamp } */
+function getBanned(){
+  return bannedCache;
+}
+function saveBanned(banned){
+  const oldIds = Object.keys(bannedCache);
+  const newIds = Object.keys(banned);
+  oldIds.forEach(id => {
+    if(!(id in banned)) db.collection("fsociety_banned").doc(id).delete().catch(() => {});
+  });
+  newIds.forEach(id => {
+    if(bannedCache[id] !== banned[id]){
+      db.collection("fsociety_banned").doc(id).set({ bannedAt: banned[id] }).catch(() => {});
+    }
+  });
+  bannedCache = banned;
+}
+/** Solo ERROR9940 puede ejecutar esto (verificado también al
+    registrar el listener del botón). Expulsa a un usuario:
+    lo saca de la lista de conectados y marca su sesión como
+    baneada para que su propia pestaña muestre el aviso. */
+function banUser(sessionId){
+  if(!isAdmin || !sessionId) return;
+  const banned = getBanned();
+  banned[sessionId] = Date.now();
+  saveBanned(banned);
+  const users = getUsers();
+  delete users[sessionId];
+  saveUsers(users);
+}
+
+/* ---------- ESTADO DEL SERVIDOR (encendido/apagado) ----------
+   Solo ERROR9940 puede apagar el servidor. Mientras está
+   apagado, nadie más puede iniciar sesión, y quien ya estaba
+   conectado es desconectado y ve una pantalla de aviso. El
+   administrador siempre puede entrar, para poder reactivarlo. */
+function getServerActive(){
+  return serverActiveCache;
+}
+function setServerActive(active){
+  serverActiveCache = active;
+  db.collection("fsociety_config").doc("server").set({ active, changedAt: Date.now() }).catch(() => {});
+  window.dispatchEvent(new Event("fsociety-server-updated"));
+}
+function toggleServer(){
+  if(!isAdmin) return;
+  const btn = document.getElementById("toggle-server-btn");
+  const label = document.getElementById("server-status-label");
+
+  if(getServerActive()){
+    // ---- APAGANDO EL SERVIDOR ----
+    // Primero se desconectan, uno por uno y con una pequeña
+    // pausa entre cada uno, los usuarios "fantasma" (los que
+    // creaste desde el panel secreto). Así cualquier persona
+    // real que siga conectada los ve salir en orden, como si
+    // de verdad se estuvieran desconectando. Al final, recién
+    // ahí se apaga el servidor de verdad.
+    if(btn) btn.disabled = true;
+    if(label){ label.textContent = "DESCONECTANDO..."; label.className = "status-off"; }
+
+    const users = getUsers();
+    const ghostIds = Object.keys(users).filter(id => users[id].permanent && id !== mySessionId);
+    let i = 0;
+
+    function removeNextGhost(){
+      const current = getUsers();
+      if(i < ghostIds.length){
+        delete current[ghostIds[i]];
+        saveUsers(current);
+        i++;
+        setTimeout(removeNextGhost, 900);
+      } else {
+        // Ya se fueron todos los fantasmas: ahora sí se apaga
+        // el servidor, lo que también desconecta a cualquier
+        // usuario real que siga dentro.
+        setServerActive(false);
+        const finalUsers = getUsers();
+        Object.keys(finalUsers).forEach(id => {
+          if(id !== mySessionId) delete finalUsers[id];
+        });
+        saveUsers(finalUsers);
+        if(btn) btn.disabled = false;
+        updateServerToggleUI();
+      }
+    }
+    removeNextGhost();
+  } else {
+    // ---- ENCENDIENDO EL SERVIDOR ----
+    setServerActive(true);
+    updateServerToggleUI();
+  }
+}
+
+/* ---------- LOGIN ---------- */
+const loginScreen = document.getElementById("login-screen");
+const chatScreen = document.getElementById("chat-screen");
+const loginForm = document.getElementById("login-form");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const passwordLabel = document.getElementById("password-label");
+const loginError = document.getElementById("login-error");
+
+usernameInput.addEventListener("input", () => {
+  const isAdminName = usernameInput.value.trim() === ADMIN_USERNAME;
+  passwordInput.classList.toggle("hidden", !isAdminName);
+  passwordLabel.classList.toggle("hidden", !isAdminName);
+  if(!isAdminName) passwordInput.value = "";
+});
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  loginError.textContent = "";
+  try{
+    const nameTyped = usernameInput.value.trim();
+    if(!nameTyped){ loginError.textContent = "Debe ingresar un usuario."; return; }
+    if(nameTyped === ADMIN_USERNAME && passwordInput.value !== ADMIN_PASSWORD){
+      loginError.textContent = "Contraseña incorrecta."; return;
+    }
+    if(!getServerActive() && nameTyped !== ADMIN_USERNAME){
+      loginError.textContent = "[SIGNAL ENCRYPTED]";
+      return;
+    }
+    const users = getUsers();
+    if(Object.keys(users).length >= MAX_USERS){ loginError.textContent = "Servidor lleno."; return; }
+    createSession(nameTyped);
+  }catch(err){
+    // Si algo falla de forma inesperada, avisamos en vez de
+    // dejar la pantalla sin reaccionar.
+    console.error("Error al iniciar sesión:", err);
+    loginError.textContent = "Error al iniciar sesión. Intenta de nuevo.";
+  }
+});
+
+function createSession(username){
+  mySessionId = "s-"+Date.now()+"-"+Math.random().toString(36).slice(2,9);
+  myUsername = username;
+  isAdmin = username === ADMIN_USERNAME;
+  safeSet("session", SS_SESSION, JSON.stringify({ id: mySessionId, name: myUsername }));
+  const users = getUsers();
+  users[mySessionId] = { name: myUsername, isAdmin, lastSeen: Date.now() };
+  saveUsers(users);
+  enterChat();
+}
+
+/* ---------- ENTRAR AL CHAT ---------- */
+function enterChat(){
+  loginScreen.classList.add("hidden");
+  chatScreen.classList.remove("hidden");
+
+  const secretPanel = document.getElementById("secret-panel");
+  if(isAdmin) secretPanel.classList.remove("hidden");
+  else secretPanel.classList.add("hidden");
+
+  renderUsers();
+  renderMessages();
+  startHeartbeat();
+  startCleanupWatcher();
+  banCheckTimer = setInterval(checkIfBanned, 3000);
+  serverCheckTimer = setInterval(checkServerStatus, 3000);
+  if(isAdmin) updateServerToggleUI();
+
+  // Ya no hace falta escuchar el evento "storage": Firestore
+  // (onSnapshot, arriba del archivo) mantiene todo sincronizado
+  // en tiempo real entre cualquier celular u navegador.
+  window.addEventListener("fsociety-users-updated", renderUsers);
+  window.addEventListener("fsociety-messages-updated", renderMessages);
+  window.addEventListener("fsociety-banned-updated", checkIfBanned);
+  window.addEventListener("fsociety-server-updated", checkServerStatus);
+  window.addEventListener("beforeunload", removeMySession);
+
+  document.getElementById("message-input").focus();
+}
+
+/* ---------- RENDER USUARIOS ---------- */
+function renderUsers(){
+  const usersList = document.getElementById("users-list");
+  const users = getUsers();
+  // Ya no hay corona ni orden especial para el administrador:
+  // todos se muestran igual, para que nadie pueda distinguir
+  // quién es ERROR9940 con solo mirar la lista.
+  const entries = Object.entries(users).sort(([, a], [, b]) => a.lastSeen - b.lastSeen);
+
+  usersList.innerHTML = "";
+  entries.forEach(([, u]) => {
+    const li = document.createElement("li");
+    li.textContent = `🟢 ${u.name}`;
+    usersList.appendChild(li);
+  });
+
+  // Si el panel secreto está presente (soy ERROR9940), refresco
+  // el selector de baneo con los usuarios conectados, sin incluirme.
+  const banSelect = document.getElementById("ban-user-select");
+  if(banSelect){
+    const prevValue = banSelect.value;
+    banSelect.innerHTML = "";
+    entries.forEach(([id, u]) => {
+      if(id === mySessionId) return;
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = u.name;
+      banSelect.appendChild(opt);
+    });
+    const stillExists = Array.from(banSelect.options).some(o => o.value === prevValue);
+    if(stillExists) banSelect.value = prevValue;
+  }
+}
+
+/* Panel de usuarios colapsable (útil en pantallas de celular) */
+const usersPanel = document.getElementById("users-panel");
+const usersToggle = document.getElementById("users-toggle");
+const usersArrow = document.getElementById("users-arrow");
+usersToggle.addEventListener("click", () => {
+  usersPanel.classList.toggle("collapsed");
+  usersArrow.textContent = usersPanel.classList.contains("collapsed") ? "▸" : "▾";
+});
+
+/* ---------- RENDER MENSAJES ---------- */
+function renderMessages(){
+  const box = document.getElementById("messages");
+  const messages = getMessages();
+  box.innerHTML = "";
+  messages.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.innerHTML = `<span class="sender">${escapeHtml(m.sender)}:</span> ${escapeHtml(m.text)}`;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------- ENVIAR MENSAJES ---------- */
+const messageForm = document.getElementById("message-form");
+const messageInput = document.getElementById("message-input");
+messageForm.addEventListener("submit", (e) => { e.preventDefault(); sendMessage(); });
+function sendMessage(){
+  const text = messageInput.value.trim();
+  if(!text) return;
+  addMessage(myUsername, text);
+  messageInput.value = "";
+  messageInput.focus();
+}
+
+/* ---------- PANEL SECRETO (solo ERROR9940) ---------- */
+const changeNameBtn = document.getElementById("change-name-btn");
+const newNameInput = document.getElementById("new-name-input");
+changeNameBtn.addEventListener("click", () => {
+  if(!isAdmin) return;
+  const newName = newNameInput.value.trim();
+  if(!newName) return;
+
+  const users = getUsers();
+
+  // ¿Ya existe alguien en la lista con exactamente ese nombre?
+  const existingId = Object.keys(users).find(id => users[id].name === newName);
+
+  if(existingId){
+    // Ya existe: NO se duplica. Esa entrada se queda tal cual
+    // está en la lista, y simplemente empiezas a chatear con
+    // ese nombre (como si cambiaras de cuenta a una que ya
+    // habías creado antes).
+    myUsername = newName;
+  } else {
+    // No existe todavía: se crea como una persona nueva y
+    // permanente en la lista (no expira por inactividad), y
+    // pasas a chatear con ese nombre.
+    if(Object.keys(users).length >= MAX_USERS){
+      newNameInput.value = "";
+      return; // servidor lleno: no se puede sumar a "esta persona más"
+    }
+    const newId = "g-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
+    users[newId] = { name: newName, lastSeen: Date.now(), permanent: true };
+    saveUsers(users);
+    myUsername = newName;
+  }
+
+  // Actualizamos la sesión local con el nombre activo actual,
+  // para que sobreviva si recargas la página sin cerrar sesión.
+  safeSet("session", SS_SESSION, JSON.stringify({ id: mySessionId, name: myUsername }));
+
+  newNameInput.value = "";
+  // Silencioso: no se llama a addMessage() ni se avisa a nadie.
+});
+
+/* ---------- BANEAR USUARIOS (solo ERROR9940) ---------- */
+const banUserBtn = document.getElementById("ban-user-btn");
+if(banUserBtn){
+  banUserBtn.addEventListener("click", () => {
+    if(!isAdmin) return;
+    const select = document.getElementById("ban-user-select");
+    if(!select || !select.value) return;
+    banUser(select.value);
+  });
+}
+
+/* ---------- ENCENDER / APAGAR SERVIDOR (solo ERROR9940) ---------- */
+const toggleServerBtn = document.getElementById("toggle-server-btn");
+if(toggleServerBtn){
+  toggleServerBtn.addEventListener("click", () => {
+    toggleServer();
+  });
+}
+
+/* ---------- DETECCIÓN DE BANEO PROPIO ----------
+   Cada pestaña revisa periódicamente (y ante cambios de
+   almacenamiento) si su propia sesión fue baneada por el
+   administrador. El administrador nunca puede ser baneado. */
+function checkIfBanned(){
+  if(!mySessionId || isAdmin) return;
+  const banned = getBanned();
+  if(banned[mySessionId]){
+    showBannedScreen();
+  }
+}
+
+function showBannedScreen(){
+  clearInterval(heartbeatTimer);
+  clearInterval(cleanupTimer);
+  clearInterval(banCheckTimer);
+  clearInterval(serverCheckTimer);
+  window.removeEventListener("beforeunload", removeMySession);
+
+  document.getElementById("chat-screen").innerHTML = `
+    <div class="banned-overlay">
+      <pre class="banned-ascii"> ██████╗ ██████╗ ██████╗ ███████╗██████╗ 
+██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗
+██║     ██║   ██║██║  ██║█████╗  ██║  ██║
+██║     ██║   ██║██║  ██║██╔══╝  ██║  ██║
+╚██████╗╚██████╔╝██████╔╝███████╗██████╔╝
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═════╝ </pre>
+      <h1 class="banned-title">[SIGNAL ENCRYPTED]</h1>
+      <p class="banned-sub">// ACCESO REVOCADO — CONEXIÓN TERMINADA</p>
+    </div>`;
+}
+
+/* ---------- DETECCIÓN DE SERVIDOR APAGADO ----------
+   Si ERROR9940 apaga el servidor mientras alguien ya está
+   dentro del chat, esa pestaña lo detecta y muestra un aviso,
+   quedando desconectada hasta que el servidor se reactive. */
+function checkServerStatus(){
+  if(!mySessionId || isAdmin) return;
+  if(!getServerActive()){
+    showServerOfflineScreen();
+  }
+}
+
+function showServerOfflineScreen(){
+  clearInterval(heartbeatTimer);
+  clearInterval(cleanupTimer);
+  clearInterval(banCheckTimer);
+  clearInterval(serverCheckTimer);
+  window.removeEventListener("beforeunload", removeMySession);
+
+  document.getElementById("chat-screen").innerHTML = `
+    <div class="banned-overlay">
+      <pre class="banned-ascii">░░░░░░░░░░░░░░░░░░░░░░░░
+░ SERVIDOR DESCONECTADO ░
+░░░░░░░░░░░░░░░░░░░░░░░░</pre>
+      <h1 class="banned-title">[SIGNAL ENCRYPTED]</h1>
+      <p class="banned-sub">// canal cifrado — transmisión interrumpida</p>
+    </div>`;
+}
+
+/** Actualiza el texto/estado del botón e indicador dentro del
+    panel secreto (solo lo ve ERROR9940). */
+function updateServerToggleUI(){
+  const label = document.getElementById("server-status-label");
+  const btn = document.getElementById("toggle-server-btn");
+  if(!label || !btn) return;
+  const active = getServerActive();
+  label.textContent = active ? "ACTIVO" : "INACTIVO";
+  label.className = active ? "status-on" : "status-off";
+  btn.textContent = active ? "APAGAR SERVIDOR" : "ENCENDER SERVIDOR";
+}
+
+/* ---------- HEARTBEAT / LIMPIEZA ---------- */
+function startHeartbeat(){
+  heartbeatTimer = setInterval(() => {
+    db.collection("fsociety_users").doc(mySessionId).update({ lastSeen: Date.now() }).catch(() => {});
+  }, HEARTBEAT_MS);
+}
+function startCleanupWatcher(){
+  cleanupTimer = setInterval(() => {
+    const users = getUsers();
+    let changed = false;
+    const now = Date.now();
+    Object.keys(users).forEach(id => {
+      if(users[id].permanent) return; // los usuarios creados desde el panel secreto no expiran solos
+      if(now - users[id].lastSeen > STALE_MS){ delete users[id]; changed = true; }
+    });
+    if(changed) saveUsers(users);
+  }, HEARTBEAT_MS);
+}
+
+/** Borra todos los documentos de una colección de Firestore. */
+function wipeCollection(name){
+  db.collection(name).get().then(snapshot => {
+    const batch = db.batch();
+    snapshot.forEach(doc => batch.delete(doc.ref));
+    return batch.commit();
+  }).catch(() => {});
+}
+
+function removeMySession(){
+  if(isAdmin){
+    // Si ERROR9940 se va (botón SALIR o cierra la pestaña),
+    // se reinicia todo el chat para la próxima vez: se borran
+    // todos los usuarios (reales y los creados desde el panel
+    // secreto), los mensajes, los baneos, y el servidor vuelve
+    // a quedar activo.
+    wipeCollection("fsociety_users");
+    wipeCollection("fsociety_messages");
+    wipeCollection("fsociety_banned");
+    setServerActive(true);
+    return;
+  }
+  db.collection("fsociety_users").doc(mySessionId).delete().catch(() => {});
+}
+
+/* ---------- LOGOUT ---------- */
+document.getElementById("logout-btn").addEventListener("click", () => {
+  removeMySession();
+  clearInterval(heartbeatTimer);
+  clearInterval(cleanupTimer);
+  clearInterval(banCheckTimer);
+  clearInterval(serverCheckTimer);
+  window.removeEventListener("beforeunload", removeMySession);
+  safeRemove("session", SS_SESSION);
+  location.reload();
+});
+</script>
+</body>
+</html>
