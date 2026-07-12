@@ -147,18 +147,36 @@ html,body{height:100%;background:var(--bg);color:var(--green);font-family:var(--
 
 /* Chat central: ocupa el espacio disponible */
 .chat-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+
+/* Mensaje fijado por el admin, visible arriba del chat para todos */
+.pinned-banner{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;
+  color:#ffcc00;background:rgba(255,204,0,.07);border-bottom:1px dashed rgba(255,204,0,.4);
+  flex-shrink:0;}
+.pinned-banner .pin-icon{flex-shrink:0;}
+.pinned-banner .pin-text{flex:1;word-break:break-word;}
+
 .messages-box{flex:1;overflow-y:auto;padding:12px;font-size:14px;line-height:1.55;background:#000;
   -webkit-overflow-scrolling:touch;}
 .messages-box .msg{margin-bottom:6px;animation:fadeIn .2s ease-out;white-space:pre-wrap;word-break:break-word;}
 .messages-box .msg .sender{color:var(--green);font-weight:bold;text-shadow:0 0 4px var(--green-glow);}
 
+/* "Fulano está escribiendo..." */
+.typing-indicator{padding:3px 14px;font-size:11px;color:var(--green-dim);font-style:italic;
+  min-height:15px;flex-shrink:0;}
+
+/* Aviso cuando el input está bloqueado (silenciado / solo lectura) */
+.input-lock-hint{padding:4px 14px;font-size:11px;color:#ff8800;flex-shrink:0;
+  text-shadow:0 0 4px rgba(255,136,0,.5);}
+
 .message-form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--green-dim);flex-shrink:0;}
 .message-form input{flex:1;background:#000;border:1px solid var(--green-dim);color:var(--green);
   font-family:var(--font-mono);font-size:16px;padding:11px;border-radius:4px;outline:none;min-width:0;}
 .message-form input:focus{border-color:var(--green);box-shadow:0 0 8px var(--green-glow);}
+.message-form input:disabled{opacity:.4;}
 .message-form button{background:#000;border:1px solid var(--green);color:var(--green);
   font-family:var(--font-mono);font-size:13px;padding:11px 14px;border-radius:4px;cursor:pointer;flex-shrink:0;}
 .message-form button:active{background:var(--green);color:#000;}
+.message-form button:disabled{opacity:.4;cursor:not-allowed;}
 
 /* Panel secreto: colapsado por defecto, escondido para todos
    menos ERROR9940. En celular ocupa poco espacio hasta que se abre. */
@@ -181,6 +199,54 @@ html,body{height:100%;background:var(--bg);color:var(--green);font-family:var(--
 .secret-divider{border:none;border-top:1px dashed var(--green-dim);margin:14px 0;}
 .status-on{color:var(--green);font-weight:bold;}
 .status-off{color:#ff3b3b;font-weight:bold;text-shadow:0 0 6px rgba(255,59,59,.6);}
+
+.system-btn{margin-top:10px;width:100%;background:#000;border:1px solid #ffcc00;color:#ffcc00;
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;
+  text-shadow:0 0 6px rgba(255,204,0,.5);}
+.system-btn:active{background:#ffcc00;color:#000;}
+
+.transport-btn{margin-top:10px;width:100%;background:#000;border:1px solid #00e5ff;color:#00e5ff;
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;
+  text-shadow:0 0 6px rgba(0,229,255,.5);}
+.transport-btn:active{background:#00e5ff;color:#000;}
+
+.reset-btn{margin-top:10px;width:100%;background:#000;border:1px solid #ff8800;color:#ff8800;
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;
+  text-shadow:0 0 6px rgba(255,136,0,.5);}
+.reset-btn:active{background:#ff8800;color:#000;}
+
+.readonly-btn{margin-top:10px;width:100%;background:#000;border:1px solid #b388ff;color:#b388ff;
+  font-family:var(--font-mono);font-size:13px;padding:10px;border-radius:4px;cursor:pointer;
+  text-shadow:0 0 6px rgba(179,136,255,.5);}
+.readonly-btn:active{background:#b388ff;color:#000;}
+
+/* Indicador de "está escribiendo..." */
+.typing-indicator{padding:4px 12px;font-size:11px;color:var(--green-dim);font-style:italic;min-height:16px;}
+
+/* Banner de mensaje fijado */
+.pinned-banner{background:#050505;border:1px solid #ffcc00;border-radius:4px;padding:6px 10px;
+  font-size:12px;color:#ffcc00;margin:8px;display:flex;justify-content:space-between;
+  align-items:center;gap:8px;text-shadow:0 0 6px rgba(255,204,0,.4);}
+.pinned-banner button{background:none;border:1px solid #ffcc00;color:#ffcc00;cursor:pointer;
+  font-size:11px;border-radius:3px;padding:2px 6px;flex-shrink:0;}
+
+/* Botones de acción sobre cada mensaje (solo visibles para el admin) */
+.msg-admin-actions{margin-left:6px;white-space:nowrap;}
+.msg-admin-actions button{background:none;border:none;cursor:pointer;font-size:11px;opacity:.55;
+  padding:0 2px;}
+.msg-admin-actions button:active{opacity:1;}
+
+/* Registro privado de conexiones (solo lo ve ERROR9940) */
+.admin-log-list{list-style:none;font-size:11px;color:var(--green-dim);max-height:130px;
+  overflow-y:auto;margin-top:6px;padding:0;}
+.admin-log-list li{padding:3px 2px;border-bottom:1px dashed rgba(0,255,0,.15);}
+
+/* Mensajes "del sistema" (sin remitente humano) dentro del chat */
+.messages-box .msg.system-msg{color:#ffcc00;text-align:center;font-style:italic;
+  text-shadow:0 0 6px rgba(255,204,0,.5);margin:10px 0;}
+
+/* Sala privada (feature "transportar") reutiliza .banned-overlay
+   para la transición de glitch antes de entrar. */
 
 /* Logo original (encapuchado con ojos brillantes) — NO es la
    máscara de ninguna serie o marca, es un diseño propio simple
@@ -298,7 +364,9 @@ html,body{height:100%;background:var(--bg);color:var(--green);font-family:var(--
 
       <!-- ZONA DE CHAT -->
       <main class="panel chat-panel">
+        <div id="pinned-banner" class="pinned-banner hidden"></div>
         <div id="messages" class="messages-box"></div>
+        <div id="typing-indicator" class="typing-indicator"></div>
         <form id="message-form" class="message-form">
           <input type="text" id="message-input" placeholder="Escribe un mensaje..." autocomplete="off">
           <button type="submit">ENVIAR</button>
@@ -326,6 +394,38 @@ html,body{height:100%;background:var(--bg);color:var(--green);font-family:var(--
           <label>🔌 ESTADO DEL SERVIDOR: <span id="server-status-label" class="status-on">ACTIVO</span></label>
           <button id="toggle-server-btn" class="ban-btn">APAGAR SERVIDOR</button>
           <p class="secret-hint">// mientras esté apagado, nadie más podrá entrar ni seguir en el chat</p>
+
+          <hr class="secret-divider">
+
+          <label for="system-msg-input">📢 MENSAJE DEL SISTEMA:</label>
+          <input type="text" id="system-msg-input" placeholder="Mensaje falso del sistema...">
+          <button id="system-msg-btn" class="system-btn">ENVIAR A TODOS</button>
+          <p class="secret-hint">// aparece como si lo dijera la app, sin remitente humano</p>
+
+          <hr class="secret-divider">
+
+          <label for="transport-user-select">🌀 LLEVAR A SERVIDOR PRIVADO:</label>
+          <select id="transport-user-select"></select>
+          <button id="transport-user-btn" class="transport-btn">TRANSPORTAR</button>
+          <p class="secret-hint">// verá un glitch "ENCRYPTED" y quedará solo contigo, aislado de los demás</p>
+
+          <hr class="secret-divider">
+
+          <label>🔄 REINICIAR CHAT:</label>
+          <button id="reset-chat-btn" class="reset-btn">REINICIAR TODO</button>
+          <p class="secret-hint">// borra mensajes, baneos y desconecta a todos menos a ti. Pide confirmación</p>
+
+          <hr class="secret-divider">
+
+          <label>🔒 MODO SOLO LECTURA: <span id="readonly-status-label" class="status-on">INACTIVO</span></label>
+          <button id="toggle-readonly-btn" class="readonly-btn">ACTIVAR SOLO LECTURA</button>
+          <p class="secret-hint">// mientras esté activo, solo tú puedes escribir mensajes</p>
+
+          <hr class="secret-divider">
+
+          <label>📋 REGISTRO DE CONEXIONES:</label>
+          <ul id="admin-log-list" class="admin-log-list"></ul>
+          <p class="secret-hint">// solo tú puedes ver esto: quién entró/salió y cuándo</p>
         </div>
       </aside>
 
@@ -349,7 +449,7 @@ const MAX_USERS = 8;
 const ADMIN_USERNAME = "ERROR9940";
 const ADMIN_PASSWORD = "FF";
 const HEARTBEAT_MS = 4000;
-const STALE_MS = 12000;
+const STALE_MS = 20000;
 
 // ---------- CONEXIÓN A FIREBASE ----------
 const firebaseConfig = {
@@ -383,6 +483,9 @@ let usersCache = {};
 let messagesCache = [];
 let bannedCache = {};
 let serverActiveCache = true;
+let readOnlyCache = false;
+let pinnedCache = null;
+let typingCache = {};
 
 db.collection("fsociety_users").onSnapshot(snapshot => {
   const obj = {};
@@ -392,7 +495,9 @@ db.collection("fsociety_users").onSnapshot(snapshot => {
 });
 
 db.collection("fsociety_messages").orderBy("timestamp").onSnapshot(snapshot => {
-  messagesCache = snapshot.docs.map(doc => doc.data());
+  // Guardamos también el id de cada mensaje (doc.id) para poder
+  // borrarlo o fijarlo después desde el panel de admin.
+  messagesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   renderMessages();
 });
 
@@ -407,6 +512,25 @@ db.collection("fsociety_config").doc("server").onSnapshot(doc => {
   serverActiveCache = doc.exists ? (doc.data().active !== false) : true;
   checkServerStatus();
 });
+
+db.collection("fsociety_config").doc("readonly").onSnapshot(doc => {
+  readOnlyCache = doc.exists ? !!doc.data().active : false;
+  updateMessageFormState();
+  updateReadOnlyUI();
+});
+
+db.collection("fsociety_config").doc("pinned").onSnapshot(doc => {
+  pinnedCache = doc.exists ? doc.data() : null;
+  renderPinned();
+});
+
+db.collection("fsociety_typing").onSnapshot(snapshot => {
+  const obj = {};
+  snapshot.forEach(doc => { obj[doc.id] = doc.data(); });
+  typingCache = obj;
+  renderTypingIndicator();
+});
+setInterval(renderTypingIndicator, 1000); // para que el indicador se apague solo tras unos segundos sin escribir
 
 /* ---------- FONDO ESTILO "LLUVIA DE CÓDIGO" (Matrix) ---------- */
 (function initMatrixRain(){
@@ -574,7 +698,16 @@ function safeRemove(type, key){
 
 /* ---------- CAPA DE DATOS ---------- */
 function getUsers(){
-  return usersCache;
+  // OJO: se devuelve una COPIA, nunca la caché real directamente.
+  // Si devolviéramos la referencia real, cualquier código que la
+  // modifique (agregar/borrar usuarios) estaría modificando
+  // usersCache antes de tiempo, y saveUsers ya no podría notar
+  // la diferencia entre "antes" y "después" (compararía el
+  // objeto contra sí mismo) — eso hacía que nunca se escribiera
+  // de verdad en Firestore, y por eso los usuarios aparecían un
+  // instante y luego desaparecían al llegar la próxima
+  // actualización real desde la base de datos.
+  return { ...usersCache };
 }
 function saveUsers(newUsersObj){
   // Comparamos contra lo que ya sabíamos y solo escribimos en
@@ -612,7 +745,7 @@ function addMessage(sender, text){
 
 /** Lee la lista de sesiones baneadas: { sessionId: timestamp } */
 function getBanned(){
-  return bannedCache;
+  return { ...bannedCache }; // copia, mismo motivo que en getUsers()
 }
 function saveBanned(banned){
   const oldIds = Object.keys(bannedCache);
@@ -654,6 +787,136 @@ function setServerActive(active){
   db.collection("fsociety_config").doc("server").set({ active, changedAt: Date.now() }).catch(() => {});
   window.dispatchEvent(new Event("fsociety-server-updated"));
 }
+
+/* ---------- MODO SOLO LECTURA (solo ERROR9940 puede activarlo) ----------
+   Mientras está activo, nadie excepto el administrador puede
+   escribir mensajes nuevos. */
+function getReadOnly(){
+  return readOnlyCache;
+}
+function setReadOnly(active){
+  readOnlyCache = active;
+  db.collection("fsociety_config").doc("readonly").set({ active }).catch(() => {});
+}
+function toggleReadOnly(){
+  if(!isAdmin) return;
+  setReadOnly(!getReadOnly());
+  updateReadOnlyUI();
+}
+function updateReadOnlyUI(){
+  const label = document.getElementById("readonly-status-label");
+  const btn = document.getElementById("toggle-readonly-btn");
+  if(!label || !btn) return;
+  const active = getReadOnly();
+  label.textContent = active ? "ACTIVO" : "INACTIVO";
+  label.className = active ? "status-off" : "status-on";
+  btn.textContent = active ? "DESACTIVAR SOLO LECTURA" : "ACTIVAR SOLO LECTURA";
+}
+/** Habilita o deshabilita la caja de escribir según el modo
+    solo lectura, para todos menos el administrador. */
+function updateMessageFormState(){
+  if(isAdmin) return;
+  const input = document.getElementById("message-input");
+  if(!input) return;
+  const form = document.getElementById("message-form");
+  const btn = form ? form.querySelector("button") : null;
+  if(readOnlyCache){
+    input.disabled = true;
+    input.placeholder = "Modo solo lectura activado...";
+    if(btn) btn.disabled = true;
+  } else {
+    input.disabled = false;
+    input.placeholder = "Escribe un mensaje...";
+    if(btn) btn.disabled = false;
+  }
+}
+
+/* ---------- MENSAJE FIJADO (solo ERROR9940 puede fijar/quitar) ---------- */
+function pinMessage(sender, text, timestamp){
+  if(!isAdmin) return;
+  db.collection("fsociety_config").doc("pinned").set({ sender, text, timestamp }).catch(() => {});
+}
+function unpinMessage(){
+  if(!isAdmin) return;
+  db.collection("fsociety_config").doc("pinned").delete().catch(() => {});
+}
+function renderPinned(){
+  const el = document.getElementById("pinned-banner");
+  if(!el) return;
+  if(!pinnedCache){
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  el.innerHTML = `📌 <span><b>${escapeHtml(pinnedCache.sender)}:</b> ${escapeHtml(pinnedCache.text)}</span>`;
+  if(isAdmin){
+    const btn = document.createElement("button");
+    btn.textContent = "✕";
+    btn.title = "Quitar mensaje fijado";
+    btn.addEventListener("click", unpinMessage);
+    el.appendChild(btn);
+  }
+}
+
+/* ---------- BORRAR MENSAJES INDIVIDUALES (solo ERROR9940) ---------- */
+function deleteMessage(id){
+  if(!isAdmin || !id) return;
+  db.collection("fsociety_messages").doc(id).delete().catch(() => {});
+}
+
+/* ---------- INDICADOR "ESTÁ ESCRIBIENDO..." (para todos) ---------- */
+function notifyTyping(){
+  if(!mySessionId) return;
+  db.collection("fsociety_typing").doc(mySessionId).set({
+    name: myUsername,
+    updatedAt: Date.now()
+  }).catch(() => {});
+}
+function clearTyping(){
+  if(!mySessionId) return;
+  db.collection("fsociety_typing").doc(mySessionId).delete().catch(() => {});
+}
+function renderTypingIndicator(){
+  const el = document.getElementById("typing-indicator");
+  if(!el) return;
+  const now = Date.now();
+  const names = Object.entries(typingCache)
+    .filter(([id, t]) => id !== mySessionId && now - t.updatedAt < 4000)
+    .map(([, t]) => t.name);
+  if(names.length === 0){
+    el.textContent = "";
+  } else if(names.length === 1){
+    el.textContent = `${names[0]} está escribiendo...`;
+  } else {
+    el.textContent = `${names.join(", ")} están escribiendo...`;
+  }
+}
+
+/* ---------- REGISTRO PRIVADO DE CONEXIONES (solo lo ve ERROR9940) ---------- */
+let logCache = [];
+function logEvent(name, action){
+  db.collection("fsociety_log").add({ name, action, timestamp: Date.now() }).catch(() => {});
+}
+function watchLog(){
+  db.collection("fsociety_log").orderBy("timestamp", "desc").limit(20).onSnapshot(snapshot => {
+    logCache = snapshot.docs.map(doc => doc.data());
+    renderLog();
+  });
+}
+function renderLog(){
+  const el = document.getElementById("admin-log-list");
+  if(!el) return;
+  el.innerHTML = "";
+  logCache.forEach(entry => {
+    const li = document.createElement("li");
+    const time = new Date(entry.timestamp).toLocaleTimeString();
+    const icon = entry.action === "join" ? "→" : "←";
+    li.textContent = `${icon} ${entry.name} (${time})`;
+    el.appendChild(li);
+  });
+}
+
 function toggleServer(){
   if(!isAdmin) return;
   const btn = document.getElementById("toggle-server-btn");
@@ -703,6 +966,141 @@ function toggleServer(){
   }
 }
 
+/* =============================================================
+   TRANSPORTAR USUARIO A SALA PRIVADA (solo ERROR9940)
+   El admin elige a alguien de la lista y lo saca de la sala
+   principal en silencio. Esa persona ve un glitch con el texto
+   "ENCRYPTED" y queda en una sala aparte, a solas con el admin.
+   Cada sala privada usa como identificador el sessionId original
+   de la persona transportada, así el admin puede volver a
+   entrar a la misma sala si la vuelve a abrir.
+============================================================= */
+let currentPrivateRoomId = null;
+let privateRoomUnsub = null;
+
+/** Solo el admin puede llamar esto. Marca al usuario elegido
+    para ser transportado y el propio admin entra de inmediato
+    a esa sala privada. */
+function transportUser(targetId){
+  if(!isAdmin || !targetId) return;
+  db.collection("fsociety_transport").doc(targetId).set({
+    active: true,
+    timestamp: Date.now()
+  }).catch(err => console.error("Error al transportar usuario:", err));
+
+  // Se lo saca de la lista principal, en silencio (sin avisar a nadie).
+  const users = getUsers();
+  delete users[targetId];
+  saveUsers(users);
+
+  // El admin entra de inmediato a la sala privada con esa persona.
+  renderPrivateRoomUI(targetId, true);
+}
+
+/** Cada usuario NO administrador escucha si fue marcado para
+    ser transportado. Se activa una sola vez, tras iniciar sesión. */
+function watchForTransport(){
+  db.collection("fsociety_transport").doc(mySessionId).onSnapshot(doc => {
+    if(doc.exists && doc.data().active && !currentPrivateRoomId){
+      enterPrivateRoomAsTarget();
+    }
+  });
+}
+
+/** Muestra el glitch "ENCRYPTED" unos segundos y luego mete al
+    usuario transportado a su sala privada con el admin. */
+function enterPrivateRoomAsTarget(){
+  if(currentPrivateRoomId) return; // ya estamos adentro, no repetir
+
+  // Sus temporizadores de la sala principal ya no aplican.
+  clearInterval(heartbeatTimer);
+  clearInterval(cleanupTimer);
+  clearInterval(banCheckTimer);
+  clearInterval(serverCheckTimer);
+
+  const chatScreen = document.getElementById("chat-screen");
+  chatScreen.innerHTML = `
+    <div class="banned-overlay">
+      <h1 class="banned-title"><span class="glitch neon-flicker" data-text="ENCRYPTED">ENCRYPTED</span></h1>
+      <p class="banned-sub">// canal aislado establecido</p>
+    </div>`;
+
+  setTimeout(() => {
+    renderPrivateRoomUI(mySessionId, false);
+  }, 2200);
+}
+
+/** Construye la interfaz de la sala privada (la usan tanto el
+    admin como la persona transportada). roomId es siempre el
+    sessionId original de la persona transportada. */
+function renderPrivateRoomUI(roomId, isAdminView){
+  currentPrivateRoomId = roomId;
+  const chatScreen = document.getElementById("chat-screen");
+
+  chatScreen.innerHTML = `
+    <header class="chat-header">
+      <span class="header-title">
+        <span class="glitch neon-flicker" data-text="CANAL PRIVADO">CANAL PRIVADO</span> <span class="blink">_</span>
+      </span>
+      <button id="private-exit-btn">[SALIR]</button>
+    </header>
+    <div class="chat-layout">
+      <main class="panel chat-panel" style="width:100%;">
+        <div id="private-messages" class="messages-box"></div>
+        <form id="private-message-form" class="message-form">
+          <input type="text" id="private-message-input" placeholder="Escribe un mensaje..." autocomplete="off">
+          <button type="submit">ENVIAR</button>
+        </form>
+      </main>
+    </div>`;
+
+  if(privateRoomUnsub) privateRoomUnsub();
+  privateRoomUnsub = db.collection("fsociety_private_" + roomId)
+    .orderBy("timestamp")
+    .onSnapshot(snapshot => {
+      const box = document.getElementById("private-messages");
+      if(!box) return;
+      box.innerHTML = "";
+      snapshot.forEach(doc => {
+        const m = doc.data();
+        const div = document.createElement("div");
+        div.className = "msg";
+        div.innerHTML = `<span class="sender">${escapeHtml(m.sender)}:</span> ${escapeHtml(m.text)}`;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+
+  document.getElementById("private-message-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("private-message-input");
+    const text = input.value.trim();
+    if(!text) return;
+    db.collection("fsociety_private_" + roomId).add({
+      sender: myUsername, text, timestamp: Date.now()
+    }).catch(() => {});
+    input.value = "";
+  });
+
+  document.getElementById("private-exit-btn").addEventListener("click", () => {
+    exitPrivateRoom(isAdminView);
+  });
+}
+
+/** Al salir de la sala privada, se recarga la página: es la
+    forma más simple y segura de reconstruir toda la interfaz
+    principal (usuarios, mensajes, panel secreto) desde cero. */
+function exitPrivateRoom(isAdminView){
+  const roomId = currentPrivateRoomId;
+  if(privateRoomUnsub){ privateRoomUnsub(); privateRoomUnsub = null; }
+  currentPrivateRoomId = null;
+
+  if(roomId){
+    db.collection("fsociety_transport").doc(roomId).delete().catch(() => {});
+  }
+  location.reload();
+}
+
 /* ---------- LOGIN ---------- */
 const loginScreen = document.getElementById("login-screen");
 const chatScreen = document.getElementById("chat-screen");
@@ -743,14 +1141,32 @@ loginForm.addEventListener("submit", (e) => {
   }
 });
 
-function createSession(username){
+async function createSession(username){
   mySessionId = "s-"+Date.now()+"-"+Math.random().toString(36).slice(2,9);
   myUsername = username;
   isAdmin = username === ADMIN_USERNAME;
   safeSet("session", SS_SESSION, JSON.stringify({ id: mySessionId, name: myUsername }));
+
+  // Si no había NADIE conectado justo antes de que yo entrara,
+  // el chat estaba "vacío": lo reiniciamos (mensajes y baneos)
+  // para que arranque de cero, y recién después me sumo yo.
+  // Consultamos Firestore directo (no la caché) para estar
+  // seguros de que de verdad no hay nadie en este momento.
+  try{
+    const snapshot = await db.collection("fsociety_users").get();
+    if(snapshot.empty){
+      await wipeCollection("fsociety_messages");
+      await wipeCollection("fsociety_banned");
+      setServerActive(true);
+    }
+  }catch(err){
+    console.error("Error al revisar si el chat estaba vacío:", err);
+  }
+
   const users = getUsers();
   users[mySessionId] = { name: myUsername, isAdmin, lastSeen: Date.now() };
   saveUsers(users);
+  logEvent(myUsername, "join");
   enterChat();
 }
 
@@ -765,11 +1181,19 @@ function enterChat(){
 
   renderUsers();
   renderMessages();
+  renderPinned();
+  updateMessageFormState();
   startHeartbeat();
   startCleanupWatcher();
   banCheckTimer = setInterval(checkIfBanned, 3000);
   serverCheckTimer = setInterval(checkServerStatus, 3000);
-  if(isAdmin) updateServerToggleUI();
+  if(isAdmin){
+    updateServerToggleUI();
+    updateReadOnlyUI();
+    watchLog();
+  } else {
+    watchForTransport();
+  }
 
   // Ya no hace falta escuchar el evento "storage": Firestore
   // (onSnapshot, arriba del archivo) mantiene todo sincronizado
@@ -786,11 +1210,12 @@ function enterChat(){
 /* ---------- RENDER USUARIOS ---------- */
 function renderUsers(){
   const usersList = document.getElementById("users-list");
+  if(!usersList) return; // no existe mientras estamos en pantalla de baneo/servidor apagado/sala privada
   const users = getUsers();
   // Ya no hay corona ni orden especial para el administrador:
   // todos se muestran igual, para que nadie pueda distinguir
   // quién es ERROR9940 con solo mirar la lista.
-  const entries = Object.entries(users).sort(([, a], [, b]) => a.lastSeen - b.lastSeen);
+  const entries = Object.entries(users).sort(([, a], [, b]) => lastSeenMillis(a) - lastSeenMillis(b));
 
   usersList.innerHTML = "";
   entries.forEach(([, u]) => {
@@ -800,7 +1225,8 @@ function renderUsers(){
   });
 
   // Si el panel secreto está presente (soy ERROR9940), refresco
-  // el selector de baneo con los usuarios conectados, sin incluirme.
+  // los selectores de baneo y de transporte con los usuarios
+  // conectados, sin incluirme.
   const banSelect = document.getElementById("ban-user-select");
   if(banSelect){
     const prevValue = banSelect.value;
@@ -814,6 +1240,21 @@ function renderUsers(){
     });
     const stillExists = Array.from(banSelect.options).some(o => o.value === prevValue);
     if(stillExists) banSelect.value = prevValue;
+  }
+
+  const transportSelect = document.getElementById("transport-user-select");
+  if(transportSelect){
+    const prevValue = transportSelect.value;
+    transportSelect.innerHTML = "";
+    entries.forEach(([id, u]) => {
+      if(id === mySessionId) return;
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = u.name;
+      transportSelect.appendChild(opt);
+    });
+    const stillExists = Array.from(transportSelect.options).some(o => o.value === prevValue);
+    if(stillExists) transportSelect.value = prevValue;
   }
 }
 
@@ -829,12 +1270,34 @@ usersToggle.addEventListener("click", () => {
 /* ---------- RENDER MENSAJES ---------- */
 function renderMessages(){
   const box = document.getElementById("messages");
+  if(!box) return; // no existe mientras estamos en pantalla de baneo/servidor apagado/sala privada
   const messages = getMessages();
   box.innerHTML = "";
   messages.forEach(m => {
     const div = document.createElement("div");
-    div.className = "msg";
-    div.innerHTML = `<span class="sender">${escapeHtml(m.sender)}:</span> ${escapeHtml(m.text)}`;
+    if(m.sender === "SYSTEM"){
+      // Mensaje falso "del sistema": sin remitente humano, en amarillo.
+      div.className = "msg system-msg";
+      div.textContent = `⚠ ${m.text}`;
+    } else {
+      div.className = "msg";
+      div.innerHTML = `<span class="sender">${escapeHtml(m.sender)}:</span> ${escapeHtml(m.text)}`;
+      if(isAdmin){
+        const actions = document.createElement("span");
+        actions.className = "msg-admin-actions";
+        const pinBtn = document.createElement("button");
+        pinBtn.textContent = "📌";
+        pinBtn.title = "Fijar este mensaje";
+        pinBtn.addEventListener("click", () => pinMessage(m.sender, m.text, m.timestamp));
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "🗑️";
+        delBtn.title = "Borrar este mensaje";
+        delBtn.addEventListener("click", () => deleteMessage(m.id));
+        actions.appendChild(pinBtn);
+        actions.appendChild(delBtn);
+        div.appendChild(actions);
+      }
+    }
     box.appendChild(div);
   });
   box.scrollTop = box.scrollHeight;
@@ -849,12 +1312,15 @@ function escapeHtml(str){
 const messageForm = document.getElementById("message-form");
 const messageInput = document.getElementById("message-input");
 messageForm.addEventListener("submit", (e) => { e.preventDefault(); sendMessage(); });
+messageInput.addEventListener("input", () => { notifyTyping(); });
 function sendMessage(){
   const text = messageInput.value.trim();
   if(!text) return;
+  if(!isAdmin && getReadOnly()) return; // modo solo lectura activo: bloqueado
   addMessage(myUsername, text);
   messageInput.value = "";
   messageInput.focus();
+  clearTyping();
 }
 
 /* ---------- PANEL SECRETO (solo ERROR9940) ---------- */
@@ -914,6 +1380,69 @@ const toggleServerBtn = document.getElementById("toggle-server-btn");
 if(toggleServerBtn){
   toggleServerBtn.addEventListener("click", () => {
     toggleServer();
+  });
+}
+
+/* ---------- MENSAJE FALSO DEL SISTEMA (solo ERROR9940) ---------- */
+const systemMsgBtn = document.getElementById("system-msg-btn");
+if(systemMsgBtn){
+  systemMsgBtn.addEventListener("click", () => {
+    if(!isAdmin) return;
+    const input = document.getElementById("system-msg-input");
+    const text = input.value.trim();
+    if(!text) return;
+    addMessage("SYSTEM", text);
+    input.value = "";
+  });
+}
+
+/* ---------- TRANSPORTAR USUARIO A SALA PRIVADA (solo ERROR9940) ---------- */
+const transportUserBtn = document.getElementById("transport-user-btn");
+if(transportUserBtn){
+  transportUserBtn.addEventListener("click", () => {
+    if(!isAdmin) return;
+    const select = document.getElementById("transport-user-select");
+    if(!select || !select.value) return;
+    transportUser(select.value);
+  });
+}
+
+/* ---------- REINICIAR CHAT MANUALMENTE (solo ERROR9940) ----------
+   Borra mensajes y baneos, y desconecta a todos los demás
+   (tú te quedas dentro). Pide confirmación porque no se puede
+   deshacer. */
+const resetChatBtn = document.getElementById("reset-chat-btn");
+if(resetChatBtn){
+  resetChatBtn.addEventListener("click", () => {
+    if(!isAdmin) return;
+    const sure = confirm("¿Seguro que quieres reiniciar el chat?\n\nSe borrarán todos los mensajes y baneos, y se desconectará a todos menos a ti. Esto no se puede deshacer.");
+    if(!sure) return;
+    resetChat();
+  });
+}
+
+async function resetChat(){
+  if(!isAdmin) return;
+  try{
+    await wipeCollection("fsociety_messages");
+    await wipeCollection("fsociety_banned");
+  }catch(err){
+    console.error("Error al reiniciar el chat:", err);
+  }
+  // Desconectamos a todos menos a mí mismo.
+  const users = getUsers();
+  Object.keys(users).forEach(id => {
+    if(id !== mySessionId) delete users[id];
+  });
+  saveUsers(users);
+  setServerActive(true);
+}
+
+/* ---------- MODO SOLO LECTURA (solo ERROR9940) ---------- */
+const toggleReadonlyBtn = document.getElementById("toggle-readonly-btn");
+if(toggleReadonlyBtn){
+  toggleReadonlyBtn.addEventListener("click", () => {
+    toggleReadOnly();
   });
 }
 
@@ -992,9 +1521,25 @@ function updateServerToggleUI(){
 /* ---------- HEARTBEAT / LIMPIEZA ---------- */
 function startHeartbeat(){
   heartbeatTimer = setInterval(() => {
-    db.collection("fsociety_users").doc(mySessionId).update({ lastSeen: Date.now() }).catch(() => {});
+    // Usamos la hora del SERVIDOR de Firebase (no la del celular)
+    // para que no importe si el reloj de cada dispositivo está
+    // mal sincronizado entre sí.
+    db.collection("fsociety_users").doc(mySessionId).update({
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(() => {});
   }, HEARTBEAT_MS);
 }
+
+/** Convierte el campo lastSeen (que puede ser un Timestamp de
+    Firestore, un número viejo, o estar recién escrito y aún sin
+    confirmar) a milisegundos reales, de forma segura. */
+function lastSeenMillis(u){
+  if(!u || u.lastSeen === undefined || u.lastSeen === null) return Date.now();
+  if(typeof u.lastSeen.toMillis === "function") return u.lastSeen.toMillis();
+  if(typeof u.lastSeen === "number") return u.lastSeen;
+  return Date.now(); // recién escrito, todavía sin confirmar por el servidor: lo tratamos como "ahora"
+}
+
 function startCleanupWatcher(){
   cleanupTimer = setInterval(() => {
     const users = getUsers();
@@ -1002,15 +1547,16 @@ function startCleanupWatcher(){
     const now = Date.now();
     Object.keys(users).forEach(id => {
       if(users[id].permanent) return; // los usuarios creados desde el panel secreto no expiran solos
-      if(now - users[id].lastSeen > STALE_MS){ delete users[id]; changed = true; }
+      if(now - lastSeenMillis(users[id]) > STALE_MS){ delete users[id]; changed = true; }
     });
     if(changed) saveUsers(users);
   }, HEARTBEAT_MS);
 }
 
-/** Borra todos los documentos de una colección de Firestore. */
+/** Borra todos los documentos de una colección de Firestore.
+    Devuelve la promesa para poder esperarla con await. */
 function wipeCollection(name){
-  db.collection(name).get().then(snapshot => {
+  return db.collection(name).get().then(snapshot => {
     const batch = db.batch();
     snapshot.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
@@ -1018,6 +1564,7 @@ function wipeCollection(name){
 }
 
 function removeMySession(){
+  clearTyping();
   if(isAdmin){
     // Si ERROR9940 se va (botón SALIR o cierra la pestaña),
     // se reinicia todo el chat para la próxima vez: se borran
@@ -1030,6 +1577,7 @@ function removeMySession(){
     setServerActive(true);
     return;
   }
+  logEvent(myUsername, "leave");
   db.collection("fsociety_users").doc(mySessionId).delete().catch(() => {});
 }
 
